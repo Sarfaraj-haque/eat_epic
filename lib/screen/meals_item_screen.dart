@@ -32,9 +32,19 @@ class MealsDetailsScreen extends ConsumerWidget {
                         ? "Meal Added as Favourite"
                         : "Meal removed from Favourite")));
               },
-              icon: Icon(isFaviourite
-                  ? Icons.star
-                  : Icons.star_border)),
+              icon: AnimatedSwitcher(
+                transitionBuilder: (child, animation) {
+                  return RotationTransition(
+                    turns: animation,
+                    child: child,
+                  );
+                },
+                duration: const Duration(milliseconds: 300),
+                child: Icon(
+                  isFaviourite ? Icons.star : Icons.star_border,
+                  key: ValueKey(isFaviourite),
+                ),
+              )),
         ],
         title: Text(meal.title),
       ),
@@ -42,11 +52,14 @@ class MealsDetailsScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Image(
-                image: NetworkImage(meal.imageUrl),
-                height: 300,
-                width: double.infinity,
-                fit: BoxFit.cover),
+            Hero(
+              tag: meal.id,
+              child: Image(
+                  image: NetworkImage(meal.imageUrl),
+                  height: 300,
+                  width: double.infinity,
+                  fit: BoxFit.cover),
+            ),
             const SizedBox(height: 14),
             Text(
               'Ingredients',

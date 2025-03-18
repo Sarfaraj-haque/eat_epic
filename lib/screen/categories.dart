@@ -6,12 +6,34 @@ import 'package:meals/widgets/category_grid_item.dart';
 
 import '../data/meals_data.dart';
 
-class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen(
-      {super.key,
-      required this.availableMeals});
+class CategoriesScreen extends StatefulWidget {
+  const CategoriesScreen({super.key, required this.availableMeals});
 
   final List<Meal> availableMeals;
+
+  @override
+  State<CategoriesScreen> createState() => _CategoriesScreenState();
+}
+
+class _CategoriesScreenState extends State<CategoriesScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animationController.forward();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _selectedCategory(BuildContext context, Category1 category) {
     final filteredCategory = dummyMeals
@@ -30,21 +52,31 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
-          childAspectRatio: 3 / 2),
-      children: [
-        for (final cat in availableCategories)
-          CategoryItems(
-            category: cat,
-            onSelectCategory: () {
-              _selectedCategory(context, cat);
-            },
-          )
-      ],
+    return AnimatedBuilder(
+      animation: _animationController,
+      child: GridView(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 20,
+            childAspectRatio: 3 / 2),
+        children: [
+          for (final cat in availableCategories)
+            CategoryItems(
+              category: cat,
+              onSelectCategory: () {
+                _selectedCategory(context, cat);
+              },
+            )
+        ],
+      ),
+      builder: (context, child) => SlideTransition(
+        position: Tween(begin: Offset(0, 0.3), end: Offset(0, 0)).animate(
+          CurvedAnimation(
+              parent: _animationController, curve: Curves.easeInOut),
+        ),
+        child: child,
+      ),
     );
   }
 }
